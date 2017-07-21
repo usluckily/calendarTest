@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="lib/vue2.js"></script>
+    <script type="text/javascript" src="lib/jquery-2.1.1.min.js"></script>
+    <title>Title</title>
+</head>
+<body>
+    <div class="all">
+        <button @click="test($event)">click</button>
+    </div>
+</body>
+<script>
+    new Vue({
+        el:'.all',
+        data:{
+
+        },
+        methods:{
+            test(el){
+                alert(el)
+            }
+        }
+    })
+</script>
+</html>

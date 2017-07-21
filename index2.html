@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="css/base.css"/>
+    <script type="text/javascript" src="lib/vue2.js"></script>
+    <script type="text/javascript" src="lib/jquery-2.1.1.min.js"></script>
+    <title></title>
+    <style>
+        .trans{transition:all 0.1s ease-out 0s;}
+    </style>
+</head>
+<body>
+<div class="all">
+    <div class="calendar">
+        <div id="scroll">
+
+            <div class="item-scroll-box">
+
+                <div class="referline"></div>
+
+                <div class="second-scroll-box">
+                    <!--<div class="scrolllayout"></div>-->
+                    <div class="item" v-for="i in monthList">
+                        {{ i }}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!--<div class="month-box">-->
+            <transition-group tag="div" class="month-box" v-on:before-enter="beforeEnter" v-on:enter="enter" >
+                <span v-for="(i,index) in monthsDays" v-bind:class="daysbg(i.days)"  :key="index" @click="changeStatus($event)" :data-week="i.week" :data-days="i.days">
+                    {{ i.days }}
+                </span>
+            </transition-group>
+        <!--</div>-->
+    </div>
+
+    <br />
+    <br />
+    <p >{{ choosemonth }}  {{ test }}</p>
+
+</div>
+</body>
+<script>
+    //translate3d(0px, -216px, 0px)
+    let vm = new Vue({
+        el:'.all',
+        data:{
+            monthList:['1','2','3','4','5','6','7','8','9','10','11','12'],
+            tObj:{
+                X:0,
+                Y:0,
+                NX:0,
+                NY:0,
+                dev:0,
+                up:0
+            },
+            years:new Date().getFullYear(),
+            month:new Date().getMonth()+1,
+            days:new Date().getDate(),
+            choosemonth:'',
+            test:0,
+            $event:this.$event,
+            testTxt:'',
+        },
+        methods:{
+            daysbg(i){
+                var vm = this , checkWeekend = new Date(vm.years,vm.choosemonth-1,i) //Date()中month从0开始
+//                console.log(vm.years+'-'+vm.choosemonth+'-'+i+'is:'+checkWeekend.getDay())
+                if(vm.choosemonth < vm.month || (i < vm.days && vm.choosemonth == vm.month) || (checkWeekend.getDay() == 0 || checkWeekend.getDay() == 6) ){
+                    return 's_cancel'
+                }else{
+                    return 's_normal'
+                }
+            },
+            beforeEnter:function(el){
+
+            },
+            enter(el){
+
+            },
+            changeStatus(el){
+                console.log(el.target.dataset)
+                var dataset = el.target.dataset
+                if(dataset.week == '6' || dataset.week == '0'){
+                    return
+                }else{
+                    el.target.className = 's_selected'
+                }
+            },
+            monthsDaysFac(years,month,days){
+//                console.log('month:'+month+';years:'+years)
+                var checkWeekend , res = []
+                for(var i=0;i<days;i++){
+                    checkWeekend = new Date(years,month-1,(i+1)).getDay() //month减一
+                    if(checkWeekend == 0 || checkWeekend == 6){
+                        res.push({
+                            days:i + 1,
+                            className:'s_cancel',
+                            isWeekend:true,
+                            week:checkWeekend
+                        })
+                    }else{
+                        res.push({
+                            days:i + 1,
+                            className:'s_normal',
+                            isWeekend:false,
+                            week:checkWeekend
+                        })
+                    }
+                }
+                return res
+            }
+        },
+        computed:{
+            monthsDays(){
+                var vm = this , res2  = [], years = new Date().getFullYear() , checkWeekend , days
+                switch(vm.choosemonth){
+                    case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+                        days = 31
+                        res2 = vm.monthsDaysFac(vm.years,vm.choosemonth,days)
+                    break;
+                    case 4: case 6: case 9: case 11:
+                        days = 30
+                        res2 = vm.monthsDaysFac(vm.years,vm.choosemonth,days)
+                    break;
+                    case 2:
+                        if(years%400 == 0 || ( years%4 == 0 && years%100 != 0 ) ){
+                            days = 29
+                        }else{
+                            days = 28
+                        }
+                        res2 = vm.monthsDaysFac(vm.years,vm.choosemonth,days)
+                }
+//                console.log(res2)
+                return res2
+            }
+
+        },
+        filters:{
+
+        },
+        mounted(){
+            var vm = this , x = 0 , itemH = 28, month = vm.month , initTop = (month-3)*itemH , max = month*itemH
+
+            vm.choosemonth = month
+
+            $('.second-scroll-box').css({'top':-initTop+'px'})
+
+//            setInterval(function(){
+//                x+=38
+//                $('.second-scroll-box').css({'transform':'translate3d(0px,'+-x+'px,0px)'})
+//            },3000)
+
+
+            $('.item-scroll-box').on('touchstart mousedown',function(e){
+
+                e.preventDefault()
+
+                vm.tObj.X = e.clientX || e.originalEvent.targetTouches[0].pageX;
+                vm.tObj.Y = e.clientY || e.originalEvent.targetTouches[0].pageY;
+
+                $('.second-scroll-box').removeClass('trans')
+
+                console.log('start')
+
+                $('.item-scroll-box').on('touchmove mousemove',function(e){
+
+
+                    vm.tObj.NX = e.clientX || e.originalEvent.targetTouches[0].pageX;
+                    vm.tObj.NY = e.clientY || e.originalEvent.targetTouches[0].pageY;
+
+                    vm.tObj.dev = vm.tObj.NY - vm.tObj.Y + vm.tObj.up
+
+                    $('.second-scroll-box').css({'transform':'translate3d(0px,'+vm.tObj.dev+'px,0px)'})
+
+//                    if(vm.tObj.dev >= max){
+//                        console.log('bigger')
+//                    }else{
+//
+//                    }
+
+                })
+
+                $('.item-scroll-box').on('touchend mouseup',function(e){
+
+                    vm.tObj.up = vm.tObj.dev
+
+                    vm.test = vm.tObj.dev / itemH
+
+                    vm.choosemonth = month - Math.round(vm.tObj.dev / itemH)
+
+//                    if(vm.tObj.dev >= max){
+//                        $('.second-scroll-box').css({'transform':'translate3d(0px,'+vm.tObj.dev - 38+'px,0px)'})
+//                    }else{
+//                        $('.second-scroll-box').css({'transform':'translate3d(0px,'+(month - vm.choosemonth)*itemH+'px,0px)'})
+//                    }
+
+                    $('.second-scroll-box').css({'transform':'translate3d(0px,'+(month - vm.choosemonth)*itemH+'px,0px)'})
+
+                    $('.second-scroll-box').addClass('trans')
+
+                    $('.item-scroll-box').unbind('touchmove mousemove')
+                    $('.item-scroll-box').unbind('touchend mouseup')
+                    console.log('end')
+                })
+
+            })
+
+        }
+    })
+</script>
+</html>

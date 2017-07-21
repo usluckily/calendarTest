@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="css/base.css"/>
+    <script type="text/javascript" src="lib/vue2.js"></script>
+    <script type="text/javascript" src="lib/jquery-2.1.1.min.js"></script>
+    <title></title>
+    <style>
+        .trans{transition:all 0.1s ease-out 0s;}
+    </style>
+</head>
+<body>
+<div class="all">
+
+    <div class="calendar_box">
+
+        <div class="calendar_bg"></div>
+
+        <div class="calendar">
+            <div id="scroll">
+
+                <div class="item-scroll-box">
+
+                    <div class="referline"></div>
+
+                    <div class="second-scroll-box">
+                        <!--<div class="scrolllayout"></div>-->
+                        <div class="item" v-for="i in monthList">
+                            {{ i }}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!--<div class="month-box">-->
+            <transition-group tag="div" class="month-box" v-on:before-enter="beforeEnter" v-on:enter="enter" >
+                <span v-for="(i,index) in monthsDays" v-bind:class="i.className"
+                      :key="index" @click="changeStatus($event,index)"
+                      :data-week="i.week"
+                      :data-canselect="i.canSelect"
+                      :data-lock="i.select"
+                >
+                    {{ i.days }}
+                </span>
+            </transition-group>
+            <!--</div>-->
+        </div>
+
+    </div>
+
+
+    <br />
+    <br />
+    <p >{{ choosemonth }}  {{ test }}</p>
+
+    {{ selectArrFromServices }}  {{ localSelectarr }}
+
+</div>
+</body>
+<script>
+    //translate3d(0px, -216px, 0px)
+    let vm = new Vue({
+        el:'.all',
+        data:{
+            monthList:['1','2','3','4','5','6','7','8','9','10','11','12'],
+            tObj:{
+                X:0,
+                Y:0,
+                NX:0,
+                NY:0,
+                dev:0,
+                up:0
+            },
+            years:new Date().getFullYear(),
+            month:new Date().getMonth()+1,
+            days:new Date().getDate(),
+            choosemonth:'',
+            test:0,
+            weekSelect:false,//判断周末是否可选
+            selectArrFromServices:[1,2,3,4],//第一次从服务端获取到的已被选择的日期
+            localSelectarr:[],//本地记录，方便更改的
+            testTxt:'',
+        },
+        methods:{
+            beforeEnter:function(el){
+
+            },
+            enter(el){
+
+            },
+            isInArr(c,a){
+                let state = false , len = a.length;
+                for(var i = 0;i<len;i++){
+                    c == a[i] ? state = true : '';
+                }
+                return state;
+            },
+            changeStatus(el,index){
+                var dataset = el.target.dataset , vm = this
+                if(dataset.canselect){
+                    if(dataset.lock == 0){
+
+                        vm.localSelectarr.push( (index+1) )
+
+                    }else{
+                        for(var i in vm.localSelectarr){
+                            if(vm.localSelectarr[i] == (index+1)){
+                                vm.localSelectarr.splice(i, 1)
+                            }
+                        }
+                    }
+
+                }else{
+                    return
+                }
+            },
+            monthsDaysFac(years,month,days,testArr){
+                var checkWeekend , res = [] , className = '' , isWeekend , select ,  vm = this , isDefault , canSelect //onSelect 判断是否允许选中
+
+                for(var i=0;i<days;i++){
+                    checkWeekend = new Date(years,month-1,(i+1)).getDay() //month减一
+
+                    isDefault = vm.isInArr( (i+1),testArr)
+
+                    if(vm.choosemonth < vm.month  || vm.choosemonth > (vm.month+2) || ( i < vm.days && vm.choosemonth == vm.month)){ //划掉小于当前日期的和大于当前两个月的
+                        className = 's_cancel'
+                        canSelect = false
+                        select = 0
+                    }else if( (checkWeekend == 0 || checkWeekend == 6) && !vm.weekSelect){ //在不能选择周末时划掉周末的
+                        className = 's_cancel'
+                        isWeekend = true
+                        canSelect = false
+                        select = 0
+                    }else if(isDefault){ //划掉后台传递的已选中的
+                        className = 's_selected'
+                        canSelect = true
+                        select = 1
+                    }else{
+                        className = 's_normal'
+                        isWeekend = false
+                        canSelect = true
+                        select = 0
+                    }
+
+                    res.push({
+                        days:i + 1,
+                        className:className,
+                        isWeekend:isWeekend,
+                        week:checkWeekend,
+                        canSelect:canSelect,
+                        select:select
+                    })
+                }
+                return res
+            }
+        },
+        computed:{
+            monthsDays(){
+                var vm = this , res2  = [], years = new Date().getFullYear() , checkWeekend , days //testArr为测试的默认选中日期
+
+                switch(vm.choosemonth){
+                    case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+                        days = 31
+                        res2 = vm.monthsDaysFac(vm.years,vm.choosemonth,days ,vm.localSelectarr)
+                    break;
+                    case 4: case 6: case 9: case 11:
+                        days = 30
+                        res2 = vm.monthsDaysFac(vm.years,vm.choosemonth,days,vm.localSelectarr)
+                    break;
+                    case 2:
+                        if(years%400 == 0 || ( years%4 == 0 && years%100 != 0 ) ){
+                            days = 29
+                        }else{
+                            days = 28
+                        }
+                        res2 = vm.monthsDaysFac(vm.years,vm.choosemonth,days,vm.localSelectarr)
+                }
+                return res2
+            }
+
+        },
+        filters:{
+
+        },
+        created(){
+            this.localSelectarr = this.localSelectarr.concat(this.selectArrFromServices)
+        },
+        mounted(){
+            var vm = this , x = 0 , itemH = 28, month = vm.month , initTop = (month-3)*itemH , max = month*itemH - itemH/1.2 , min = (month - vm.monthList.length)*itemH - itemH/1.2
+
+            vm.choosemonth = month
+
+            $('.second-scroll-box').css({'top':-initTop+'px'})
+
+
+            $('.item-scroll-box').on('touchstart mousedown',function(e){
+
+                e.preventDefault()
+
+                vm.tObj.X = e.clientX || e.originalEvent.targetTouches[0].pageX;
+                vm.tObj.Y = e.clientY || e.originalEvent.targetTouches[0].pageY;
+
+                $('.second-scroll-box').removeClass('trans')
+
+                $('.item-scroll-box').on('touchmove mousemove',function(e){
+
+
+                    vm.tObj.NX = e.clientX || e.originalEvent.targetTouches[0].pageX;
+                    vm.tObj.NY = e.clientY || e.originalEvent.targetTouches[0].pageY;
+
+                    if(vm.tObj.dev >= max){
+                        vm.tObj.dev = vm.tObj.dev - 1
+                    }else{
+                        vm.tObj.dev = vm.tObj.NY - vm.tObj.Y + vm.tObj.up
+                    }
+
+                    $('.second-scroll-box').css({'transform':'translate3d(0px,'+vm.tObj.dev+'px,0px)'})
+
+                    console.log(min)
+
+
+
+                })
+
+                $('.item-scroll-box').on('touchend mouseup',function(e){
+
+
+
+                    vm.test = vm.tObj.dev / itemH
+
+                    vm.choosemonth = month - Math.round(vm.tObj.dev / itemH)
+
+                    vm.tObj.up = vm.tObj.dev = (month - vm.choosemonth)*itemH
+
+//                    if(vm.tObj.dev >= max){
+//                        $('.second-scroll-box').css({'transform':'translate3d(0px,'+vm.tObj.dev - 38+'px,0px)'})
+//                    }else{
+//                        $('.second-scroll-box').css({'transform':'translate3d(0px,'+(month - vm.choosemonth)*itemH+'px,0px)'})
+//                    }
+
+                    $('.second-scroll-box').css({'transform':'translate3d(0px,'+vm.tObj.dev+'px,0px)'})
+
+                    $('.second-scroll-box').addClass('trans')
+
+                    $('.item-scroll-box').unbind('touchmove mousemove')
+                    $('.item-scroll-box').unbind('touchend mouseup')
+
+
+                    //
+                    vm.localSelectarr.splice(0,vm.localSelectarr.length)
+                    vm.localSelectarr = vm.localSelectarr.concat(vm.selectArrFromServices)
+                })
+
+            })
+
+        }
+    })
+</script>
+</html>

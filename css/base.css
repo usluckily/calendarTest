@@ -1,0 +1,164 @@
+@charset "utf-8";
+/* CSS Document */
+
+html{
+    font-size:20px;
+    overflow-x:hidden;
+    letter-spacing: 1px;
+}
+
+body {
+    font-family: "微软雅黑";
+    color:#333;
+}
+
+a {
+    text-decoration: none;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.bg_gray{
+    background:#ddd;
+}
+.bg_white{
+    background:#fff;
+}
+.bg_green{
+    background:#1ab99b
+}
+
+.s_cancel{
+    background:#ddd;
+}
+.s_normal{
+    background:#fff;
+}
+.s_selected{
+    background:#1ab99b;
+    color:#fff;
+}
+
+ul,li,ol{list-style:none}
+
+.calendar_box{
+    position:fixed;
+    width:100%;
+    height:100%;
+}
+.calendar_bg{
+    position:absolute;
+    width:100%;
+    height:100%;
+    z-index:0;
+    background:#000;
+    opacity:0.4;
+}
+
+.second_calendar_box{
+    position:relative;
+    top:20%;
+    width:14rem;
+    border-radius:0.5rem;
+    margin:0 auto;
+    background:#fff;
+}
+
+.calendar{
+    width:13rem;
+    padding:1rem 0.5rem 0 0.5rem;
+    box-sizing: content-box;
+    -moz-user-select:none;
+    -webkit-user-select:none;
+    user-select:none;
+}
+.calendar::after{
+    clear: both;
+    content: "";
+    display: block;
+    width: 100%;
+}
+
+#scroll{
+    width:3rem;
+    height:140px;
+    overflow:hidden;
+    position:relative;
+    float:left;
+    /*border:1px solid #ccc;*/
+}
+#scroll .item-scroll-box{
+    height:100%;
+    margin:0 auto;
+    position:relative;
+}
+#scroll .item-scroll-box .item{
+    height:28px;
+    text-align: center;
+    font-size:0.8rem;
+    line-height:28px;
+}
+
+.item-scroll-box .second-scroll-box{
+    position:relative;
+    width:100%;
+    overflow:hidden;
+}
+
+.scrolllayout{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    opacity:0;
+    z-index:2;
+}
+
+.referline{
+    position:absolute;
+    top:50%;
+    left:50%;
+    margin-top:-14px;
+    margin-left:-1.2rem;
+    width:80%;
+    height:28px;
+    border-top:2px solid #1ab99b;
+    border-bottom:2px solid #1ab99b;
+}
+
+.month-box{
+    display:flex;
+    flex-wrap:wrap;
+    width:10rem;
+    padding-left: 0.2rem;
+}
+.month-box span{
+    display: block;
+    height: 1.4rem;
+    line-height: 1.4rem;
+    text-align: center;
+    width: 1.4rem;
+    font-size:0.6rem;
+    border:1px solid #fff;
+}
+.c-btn-box{
+    border-top: 1px solid #eee;
+    display: flex;
+    font-size: 0.8rem;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    width: 100%;
+}
+.c-btn-box .btn2{
+    padding: 0.3rem 0;
+    width:48%;
+    text-align:center;
+}
+.c-btn-box .btn2:first-child{
+    border-right:1px solid #eee;
+}
