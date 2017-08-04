@@ -136,15 +136,6 @@ ul,li,ol{list-style:none}
     flex-wrap:wrap;
     width:10rem;
     padding-left: 0.2rem;
-    position:relative;
-}
-.month-box > .month-cover{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:#fff;
 }
 .month-box span{
     display: block;

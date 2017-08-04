@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/base.css"/>
+    <script type="text/javascript" src="lib/vue2.js"></script>
+    <script type="text/javascript" src="lib/jquery-2.1.1.min.js"></script>
+    <title></title>
+</head>
+<body>
+
+<div class="all">
+
+    <m_test v-if="show"></m_test>
+
+    <p @click="show=!show">click</p>
+
+</div>
+
+<div class="calendar_box" v-show="show" style="display:none" :before-enter="beforeEnter">
+
+    <div class="calendar_bg" @click="show = false" ></div>
+
+    <div class="second_calendar_box">
+        <div class="calendar">
+            <div id="scroll">
+
+                <div class="item-scroll-box">
+
+                    <div class="referline"></div>
+
+                    <div class="second-scroll-box">
+                        <!--<div class="scrolllayout"></div>-->
+                        <div class="item" v-for="i in monthList">
+                            {{ i }}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="month-box">
+                <div class="month-cover" v-if="load_month"></div>
+                <!--<transition-group tag="div" class="month-box" v-on:before-enter="beforeEnter" v-on:enter="enter" >-->
+                <span v-for="(i,index) in monthsDays" v-bind:class="i.className":key="index" @click="changeStatus($event,index)":data-week="i.week":data-canselect="i.canSelect":data-lock="i.select">
+                        {{ i.days }}
+                    </span>
+                <!--</transition-group>-->
+            </div>
+        </div>
+
+        <div class="c-btn-box">
+            <div class="btn2" @click="show = false">{{ btnTxt.left }}</div>
+            <div class="btn2" @click="sub">{{ btnTxt.right }}</div>
+        </div>
+
+    </div>
+
+</div>
+<button onclick="vm.show = true">click</button>
+</body>
+<script type="text/javascript" src="js/calendar.js"></script>
+</html>

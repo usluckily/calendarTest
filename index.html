@@ -36,8 +36,8 @@
                     </div>
                 </div>
 
-                <!--<div class="month-box">-->
-                <transition-group tag="div" class="month-box" v-on:before-enter="beforeEnter" v-on:enter="enter" >
+                <div class="month-box">
+                <!--<transition-group tag="div" class="month-box" v-on:before-enter="beforeEnter" v-on:enter="enter" >-->
                     <span v-for="(i,index) in monthsDays" v-bind:class="i.className"
                           :key="index" @click="changeStatus($event,index)"
                           :data-week="i.week"
@@ -46,13 +46,13 @@
                     >
                         {{ i.days }}
                     </span>
-                </transition-group>
-                <!--</div>-->
+                <!--</transition-group>-->
+                </div>
             </div>
 
             <div class="c-btn-box">
                 <div class="btn2">取消</div>
-                <div class="btn2">确定</div>
+                <div class="btn2" @click="sub">确定</div>
             </div>
 
         </div>
@@ -66,13 +66,14 @@
     <br />
     <p >{{ choosemonth }}  {{ test }}</p>
 
-    {{ selectArrFromServices }}  {{ localSelectarr }}
-
 </div>
 </body>
 <script>
+    var subApi = '/mealsManage_listMeals.do?method=updateUserEatMealStatusByMonth' , //date userid sid
+         getInitInfo = '/mealsManage_listMeals.do?method=getMealsByMonth' //sid userid date(yy-mm)
+
     //translate3d(0px, -216px, 0px)
-    let vm = new Vue({
+    var vm = new Vue({
         el:'.all',
         data:{
             monthList:['1','2','3','4','5','6','7','8','9','10','11','12'],
@@ -87,10 +88,12 @@
             years:new Date().getFullYear(),
             month:new Date().getMonth()+1,
             days:new Date().getDate(),
+            localmonth:(new Date().getMonth()+1) < 10 ? '0'+(new Date().getMonth()+1) : (new Date().getMonth()+1),
+            localdays:new Date().getDate() <10 ? '0'+new Date().getDate() : new Date().getDate(),
             choosemonth:'',
             test:0,
             weekSelect:false,//判断周末是否可选
-            selectArrFromServices:[1,2,3,4],//第一次从服务端获取到的已被选择的日期
+            selectArrFromServices:[],//第一次从服务端获取到的已被选择的日期
             localSelectarr:[],//本地记录，方便更改的
             status:{
                 cancel:[],
@@ -118,6 +121,8 @@
                     if(dataset.lock == 0){
 
                         vm.localSelectarr.push( (index+1) )
+
+                        vm.status.select.push()
 
                     }else{
                         for(var i in vm.localSelectarr){
@@ -169,6 +174,24 @@
                     })
                 }
                 return res
+            },
+            sub(){
+                var vm = this , str = ''
+                console.log(vm.localSelectarr)
+                for(var i=0 ; i<vm.localSelectarr.length ; i++){
+                    i < vm.localSelectarr.length - 1 ?
+                            str+=vm.years+'-'+vm.localmonth+'-'+(vm.localSelectarr[i] < 10 ? '0'+vm.localSelectarr[i] : vm.localSelectarr[i])+',' :
+                            str+=vm.years+'-'+vm.localmonth+'-'+(vm.localSelectarr[i] < 10 ? '0'+vm.localSelectarr[i] : vm.localSelectarr[i])
+                }
+                console.log(str)
+                $.ajax({
+                    url:subApi,
+                    data:{userid:'467310497',sid:'143',date:str,eatflag:'Y'},
+                    type:"GET",
+                    success(d){
+                        console.log(d)
+                    }
+                })
             }
         },
         computed:{
@@ -200,6 +223,15 @@
 
         },
         created(){
+            var vm = this
+            $.ajax({
+                url:getInitInfo,
+                data:{userid:'467310497',sid:'143',date:vm.years+'-'+(vm.month<10?'0'+vm.month:vm.month)},
+                type:"GET",
+                success(d){
+                    console.log(d)
+                }
+            })
             this.localSelectarr = this.localSelectarr.concat(this.selectArrFromServices)
         },
         mounted(){

@@ -5,31 +5,6 @@ var subApi = '/mealsManage_listMeals.do?method=updateUserEatMealStatusByMonth' ,
     getInitInfo = '/mealsManage_listMeals.do?method=getMealsByMonth' //sid userid date(yy-mm)
 
 
-var vmC = Vue.component('children',{
-    template:'<p>children</p>',
-    name:'test',
-    data(){
-        return{
-
-        }
-    },
-    created(){
-        alert('c')
-    }
-})
-
-var vmP = new Vue({
-    el:'.all',
-    data:{
-        show:false
-    },
-    components:{
-        m_test:vmC
-    }
-})
-
-
-
 var vm = new Vue({
     el:'.calendar_box',
     data:{
@@ -42,11 +17,6 @@ var vm = new Vue({
             NY:0,
             dev:0,
             up:0
-        },
-        load_month:false,
-        btnTxt:{
-            left:'取消',
-            right:'确认'
         },
         years:new Date().getFullYear(),
         month:new Date().getMonth()+1,
@@ -151,20 +121,11 @@ var vm = new Vue({
                 url:subApi,
                 data:{userid:'467310497',sid:'143',date:str,eatflag:'Y'},
                 type:"GET",
-                timeout:10000,
-                beforeSend(){
-                  vm.btnTxt.right = '正在提交...'
-                },
                 success(d){
                     console.log(d)
 
-                    vm.btnTxt.right = '确认'
-
                     vm.show = false
 
-                },
-                error(err){
-                    console.log(err)
                 }
             })
         }
@@ -203,16 +164,8 @@ var vm = new Vue({
             url:getInitInfo,
             data:{userid:'467310497',sid:'143',date:vm.years+'-'+(vm.month<10?'0'+vm.month:vm.month)},
             type:"GET",
-            beforeSend(){
-                vm.load_month = true
-            },
             success(d){
-                vm.load_month = false
                 console.log(d)
-            },
-            error(err){
-                vm.load_month = false
-                console.log(err)
             }
         })
         this.localSelectarr = this.localSelectarr.concat(this.selectArrFromServices)
